@@ -30,7 +30,7 @@ function start() {
       name: "postOrview",
       type: "list",
       message: "Would you like to add an Department, add on a Role(s), or add an Employee? or do you wish to view them?",
-      choices: ["department", "roles" ,"employee", "view" , "EXIT"]
+      choices: ["department", "roles" ,"employee", "view department" , "view employees", "view roles",  "EXIT"]
     })
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
@@ -41,9 +41,17 @@ function start() {
         postDepartment();
       } else if (answer.postOrview === "employee") {
           postEmployee();
-       } else if (answer.postOrview === "view") {
+       } else if (answer.postOrview === "view department") {
         viewDepartments();
-     }else{
+     }else if (answer.postOrview === "view employees") {
+        viewEmployees();
+     }else if (answer.postOrview === "view roles") {
+        viewRoles();
+     }
+     
+     
+     
+     else{
         connection.end();
       }
     });
@@ -125,21 +133,21 @@ function postRoles() {
             message: "What is the last name of the Employee you wish to add?"
         },
         {
-            name: "role",
+            name: "employeerole",
             type: "input",
             message: "What is the role of the employee?",
             choices: ["manager"]
         }
       ])
-      .then(function(answer) {if (answer.role === "Manager") {
-              answer.role = "1"};
+      .then(function(answer) {if (answer.role === "manager") {
+              answer.role_id = "1"};
         // when finished prompting, insert a new item into the db with that info
         connection.query(
           "INSERT INTO employees SET ?",
           {
             first_name: answer.First,
             last_name: answer.Last,
-            role_id: answer.role
+            role_id: answer.role_id
 
           },
           function(err) {
@@ -156,8 +164,22 @@ function postRoles() {
 
   function viewDepartments() {
     // query the database for all items being auctioned
-    connection.query("SELECT * FROM department", function(err, results) {
-      if (err) throw err;})};
+    connection.query("SELECT * FROM department", function(err, result,fields) {
+      if (err) throw err; console.log(result);})};
+
+
+ function viewEmployees() {
+        // query the database for all items being auctioned
+    connection.query("SELECT * FROM employees", function(err, result,fields) {
+        if (err) throw err; console.log(result);})};
+       
+       
+ function viewRoles() {
+            // query the database for all items being auctioned
+     connection.query("SELECT * FROM roles", function(err, result,fields) {
+          if (err) throw err; console.log(result);})};
+
+
     // once you have the items, prompt the user for which they'd like to bid on
 //     inquirer
 //       .prompt([
