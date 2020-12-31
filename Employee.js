@@ -29,8 +29,8 @@ function start() {
     .prompt({
       name: "postOrview",
       type: "list",
-      message: "Would you like to add an Department, add on a Role(s), or add an Employee? or do you wish to view them?",
-      choices: ["department", "roles" ,"employee", "view department" , "view employees", "view roles",  "EXIT"]
+      message: "Would you like to add an Department, add on a Role(s), or add an Employee? or do you wish to view them? or promote an employee?",
+      choices: ["department", "roles" ,"employee", "view department" , "view employees", "view roles", "promote",  "EXIT"]
     })
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
@@ -47,6 +47,8 @@ function start() {
         viewEmployees();
      }else if (answer.postOrview === "view roles") {
         viewRoles();
+     }else if (answer.postOrview === "promote") {
+        editEmployee();
      }
      
      
@@ -136,10 +138,11 @@ function postRoles() {
             name: "employeerole",
             type: "input",
             message: "What is the role of the employee?",
-            choices: ["manager"]
-        }
+            choices: ["manager", "consultant"]
+        },
+        
       ])
-      .then(function(answer) {if (answer.role === "manager") {
+      .then(function(answer) {if (answer.employeerole === "manager") {
               answer.role_id = "1"};
         // when finished prompting, insert a new item into the db with that info
         connection.query(
@@ -147,6 +150,7 @@ function postRoles() {
           {
             first_name: answer.First,
             last_name: answer.Last,
+            role: answer.employeerole,
             role_id: answer.role_id
 
           },
@@ -165,76 +169,74 @@ function postRoles() {
   function viewDepartments() {
     // query the database for all items being auctioned
     connection.query("SELECT * FROM department", function(err, result,fields) {
-      if (err) throw err; console.log(result);})};
+      if (err) throw err; console.log(result);start();}); 
+    
+    };
 
 
  function viewEmployees() {
         // query the database for all items being auctioned
     connection.query("SELECT * FROM employees", function(err, result,fields) {
-        if (err) throw err; console.log(result);})};
+        if (err) throw err; console.log(result); start();});};
        
        
  function viewRoles() {
             // query the database for all items being auctioned
      connection.query("SELECT * FROM roles", function(err, result,fields) {
-          if (err) throw err; console.log(result);})};
+          if (err) throw err; console.log(result);start();});};
 
 
-    // once you have the items, prompt the user for which they'd like to bid on
-//     inquirer
-//       .prompt([
-//         {
-//           name: "choice",
-//           type: "rawlist",
-//           choices: function() {
-//             var choiceArray = [];
-//             for (var i = 0; i < results.length; i++) {
-//               choiceArray.push(results[i].item_name);
-//             }
-//             return choiceArray;
-//           },
-//           message: "What auction would you like to place a bid in?"
-//         },
-//         {
-//           name: "bid",
-//           type: "input",
-//           message: "How much would you like to bid?"
-//         }
-//       ])
-//       .then(function(answer) {
-//         // get the information of the chosen item
-//         var chosenItem;
-//         for (var i = 0; i < results.length; i++) {
-//           if (results[i].item_name === answer.choice) {
-//             chosenItem = results[i];
-//           }
-//         }
-
-//         // determine if bid was high enough
-//         if (chosenItem.highest_bid < parseInt(answer.bid)) {
-//           // bid was high enough, so update db, let the user know, and start over
-//           connection.query(
-//             "UPDATE auctions SET ? WHERE ?",
-//             [
-//               {
-//                 highest_bid: answer.bid
-//               },
-//               {
-//                 id: chosenItem.id
-//               }
-//             ],
-//             function(error) {
-//               if (error) throw err;
-//               console.log("Bid placed successfully!");
-//               start();
-//             }
-//           );
-//         }
-//         else {
-//           // bid wasn't high enough, so apologize and start over
-//           console.log("Your bid was too low. Try again...");
-//           start();
-//         }
-//       });
-//   });
-// }
+          function editEmployee() {
+            // query the database for all items being auctioned
+            connection.query("SELECT * FROM employees", function(err, result) {
+              if (err) throw err
+              // once you have the items, prompt the user for which they'd like to bid on
+              inquirer
+                .prompt([
+                  {
+                    name: "choice",
+                    type: "rawlist",
+                    choices: function() {
+                      var choiceArray = [];
+                      for (var i = 0; i < result.length; i++) {
+                        choiceArray.push(result[i].first_name);
+                      }
+                      return choiceArray;
+                    },
+                    message: "What employee would you like to promote?"
+                  },
+                  {
+                    name: "promotion",
+                    type: "input",
+                    message: "what role would you like to promote them to?"
+                  }
+                ])
+                .then(function(answer) {
+                  // get the information of the chosen item
+                  var chosenEmployee;
+                  for (var i = 0; i < result.length; i++) {
+                    if (result[i].first_name === answer.choice) {
+                      chosenEmployee = result[i];
+                     
+                    }
+                }
+                  if (answer.promotion){
+                      connection.query(
+                          "UPDATE employees SET ? WHERE ?",
+                          [{
+                              role: answer.promotion
+                          },
+                          {
+                              first_name: chosenEmployee.first_name
+                          }
+                        ],
+                        function (error) {
+                            if (error) throw err;
+                           console.log("Your Employee was promoted!");  
+                            start();
+                        }
+                      )
+                  }
+                } );
+            })}
+           
