@@ -30,16 +30,16 @@ function start() {
       name: "postOrview",
       type: "list",
       message: "Would you like to add an Department, add on a Role(s), or add an Employee? or do you wish to view them? or promote an employee?",
-      choices: ["department", "roles" ,"employee", "view department" , "view employees", "view roles", "promote",  "EXIT"]
+      choices: ["Add a department", "Add role(s)" ,"Add an employee(s)", "view department" , "view employees", "view roles", "promote",  "EXIT"]
     })
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
-      if (answer.postOrview === "roles") {
+      if (answer.postOrview === "Add role(s)") {
         postRoles();
       }
-      else if(answer.postOrview === "department") {
+      else if(answer.postOrview === "Add a department") {
         postDepartment();
-      } else if (answer.postOrview === "employee") {
+      } else if (answer.postOrview === "Add an employee(s)") {
           postEmployee();
        } else if (answer.postOrview === "view department") {
         viewDepartments();
@@ -136,14 +136,20 @@ function postRoles() {
         },
         {
             name: "employeerole",
-            type: "input",
+            type: "list",
             message: "What is the role of the employee?",
-            choices: ["manager", "consultant"]
+            choices: ["manager", "consultant","head engineer","intern"]
         },
         
       ])
       .then(function(answer) {if (answer.employeerole === "manager") {
-              answer.role_id = "1"};
+              answer.role_id = "1"}
+              else if (answer.employeerole==="head engineer"){
+                  answer.role_id="2"}
+                  else if (answer.employeerole==="consultant"){
+                      answer.role_id="3"}
+                      else if (answer.employeerole==="intern"){
+                          answer.role_id="4"};
         // when finished prompting, insert a new item into the db with that info
         connection.query(
           "INSERT INTO employees SET ?",

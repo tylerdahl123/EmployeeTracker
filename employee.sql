@@ -12,7 +12,6 @@ create TABLE roles(
     id - INT PRIMARY KEY AUTO_INCREMENT,
     title- VARCHAR(30),
     salary - DECIMAL,
-    department_id - INT,
 );
 
 create TABLE employees(
@@ -21,5 +20,4 @@ create TABLE employees(
     last_name - VARCHAR(30),
     role - VARCHAR(30),
     role_id - INT,
-    manager_id - INT,
 )
